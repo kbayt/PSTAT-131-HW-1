@@ -1,0 +1,133 @@
+---
+title: "PSTAT 131 HW 1 CODE"
+author: "Katherine Bayt"
+date: '2022-04-04'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## QUESTION 1
+
+Supervised learning involves creating a model with inputs and a associated response measurement in order to estimate or predict an output. Supervised learning typically aims to predict the future observations or understand the relationship between the response and predictors. Supervised learning contains both continuous and categorical outcomes.
+
+Unsupervised learning involves creating a model with inputs with no associated response measurement variable. Thus it lacks a response variable to supervise the analysis. Unsupervised learning can be used to understand the relationships between the observations. Unsupervised learning contains clustering.
+
+The main difference between them is that supervised learning contains an associated response measurement while unsupervised learning does not. Also, supervised learning is used to understand the relationships between the response and predictors while unsupervised is used to understand the relationships between the observations.
+
+\*these 3 answers were derived from pg1 and pg 26 of Intro to Statistical Learning.
+
+## QUESTION 2
+
+A regression model has an output that is quantitative, meaning that it is a numerical value. In comparison, classification models have an output that is qualitative, meaning that it is a categorical value.
+
+## QUESTION 3
+
+Two commonly used metrics for regression ML problems are Mean Square Error and Adjusted R Square.
+
+Two commonly used metrics for classification ML problems are logistic regression and decision trees.
+
+## QUESTION 4
+
+Descriptive models try to choose a model to best visually emphasize a trend in the date.
+
+Inferential models try to find what features are significant. They aim to test theories, causal claims, and examine the relationship between outcome and predictors.
+
+Predictive models try to find what combo of features fits best. They aim to predict the response variable Y with minimum random noise/error.
+
+\*these 3 answers were derived from the lecture notes.
+
+## QUESTION 5
+
+Mechanistic models use theory to predict what will happen in the future. Empirically driven models study real-world events/experiments to develop a theory about future events. Empirically driven differs from mechanistic because empirically driven requires more observations and has no assumption about f. In comparison, mechanistic requires less observations and has assumes a parametric form of the function f. They are similar because adding too many parameters to both can lead to over fitting.
+
+I believe that an empirically-driven model is easier to understand, because it uses a large amount of observations / experiments to determine the most likely outcome. Also, empirically-driven models provide more flexibility.
+
+Bias-variance trade off allows for a good balance without over fitting or under fitting the data. For example, in both mechanistic and empirically-driven models, we cannot add to many observations otherwise the data will be over fitted, but if we add too little observations the data will be under fitted. Thus, we must find the right amount of observations in order to have a good trade off of bias and variance.
+
+## QUESTION 6
+
+The first question would be predictive. It is aiming to best predict the vote from a voter's given data, and will decide what combo of features from the data will be used best to predict the outcome.
+
+The second question would be inferential. It is aiming to examine the relationship between a personal contact with the candidate and the voter's support for the candidate.
+```{r include=FALSE}
+library(tidymodels)
+library(tidyverse)
+library(ISLR)
+library(ggplot2)
+library(corrplot)
+```
+
+## EXERCISE 1
+
+Highway miles per gallon had the highest frequency at range of 25-30. After 30 there was a decline in the amount of models / frequency. Ranges of 15-20 and 20-25 had the second and third highest frequencies respectively. The lowest frequencies were in ranges of 35-45. From this histogram I learned that care models typically average around 15-30 miles per gallon. Only a smaller portion of models will have less than 15 or more than 30.
+
+```{r echo=FALSE}
+hwy <- mpg$hwy
+hist(hwy)
+```
+
+## EXERCISE 2
+
+There appears to be a positive correlation between highway miles per gallon and city miles per gallon. Thus, as highway miles per gallon increases, so does city miles per gallon. Thus, a model that has high highway miles per gallon can be expected to also have higher city miles per gallon respectively. We can also see that city miles per gallon is typically lower than highway miles per gallon, which is expected because cars stop and start more in cities, thus using more gas.
+
+```{r echo=FALSE}
+cty <- mpg$cty
+plot(hwy, cty, main = "Relationship between City Miles per Gallon 
+     and Highway Miles per Gallon",
+     xlab = "Highway Miles per Gallon", ylab = "City Miles per Gallon")
+```
+
+## EXERCISE 3
+
+Lincoln produced the least amount of cars. Dodge produced the most amount of cars.
+
+```{r echo=FALSE}
+bp <- ggplot(data=mpg, mapping = aes(x=manufacturer)) + geom_bar(stat = "count")
+bp 
+
+## flipping manufacturers onto the y-axis 
+bp + coord_flip()
+## ordered bars by height 
+bp2 <- ggplot(data=mpg, mapping = aes(y=fct_infreq(manufacturer))) + geom_bar(stat = "count")
+bp2
+order(mpg$manufacturer)
+```
+
+## EXERCISE 4
+
+One pattern I noticed was that as the number of cylinder increases, the average highway miles per gallon decreased. Another pattern was that with 5 cylinders there was the smallest range of highway miles per gallon due to the small amount of observations with 5 cylinders.
+
+```{r echo=FALSE}
+boxplot(mpg$hwy ~ mpg$cyl)
+```
+
+## EXERCISE 5
+
+Year and displ are positively correlated which is probably a coincidence and just correlation and not causation.
+
+Cyl and displ are greatly positively correlated which makes sense. The number of cylinders is used in the formula for engine displacement. Thus a higher number of cylinders causes higher engine displacement
+
+Cty and displ are greatly negatively correlated which makes sense. Higher engine displacement gives an engine more power which in turn burns more fuel. Thus higher engine displacements will have lower city miles per gallon.
+
+Hwy and displ are greatly negatively correlated which makes sense. Higher engine displacement has lower highway miles per gallon because a vehicle burns more fuel the higher the engine displacement is.
+
+Cyl and year are slightly positively correlated which is probably a coincidence and does not signify causation.
+
+Cty and cyl are greatly negatively correlated which makes sense. The greater the number of cylinders,the more gas the vehicle burns, and the lower the city miles per gallon.
+
+Hwy and cyl are greatly negatively correlated which makes sense. The greater the number of cylinders, the lower the highway miles per gallon.
+
+Hwy and cty are greatly positively correlated which makes sense. Higher highway miles per gallon causes higher city miles per gallon.
+
+The only relationships that surprised me were city miles per gallon and engine displacement because I did not understand what engine displacement was before this home work assignment.
+
+```{r echo=FALSE}
+## removed non-numeric observations 
+newdata <- subset(mpg, select = -c(manufacturer,model, trans, class, fl, drv))
+## lower triangle correlation matrix 
+M = cor(newdata)
+corrplot(M, type = 'lower', diag = FALSE)
+```
